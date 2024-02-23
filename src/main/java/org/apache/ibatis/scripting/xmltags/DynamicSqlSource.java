@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,29 +20,33 @@ import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
 
+import java.util.Map;
+
 /**
  * @author Clinton Begin
  */
 public class DynamicSqlSource implements SqlSource {
 
-  private final Configuration configuration;
-  private final SqlNode rootSqlNode;
+    private Configuration configuration;
+    private SqlNode rootSqlNode;
 
-  public DynamicSqlSource(Configuration configuration, SqlNode rootSqlNode) {
-    this.configuration = configuration;
-    this.rootSqlNode = rootSqlNode;
-  }
+    public DynamicSqlSource(Configuration configuration, SqlNode rootSqlNode) {
+        this.configuration = configuration;
+        this.rootSqlNode = rootSqlNode;
+    }
 
-  @Override
-  public BoundSql getBoundSql(Object parameterObject) {
-    DynamicContext context = new DynamicContext(configuration, parameterObject);
-    rootSqlNode.apply(context);
-    SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
-    Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
-    SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());
-    BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
-    context.getBindings().forEach(boundSql::setAdditionalParameter);
-    return boundSql;
-  }
+    public BoundSql getBoundSql(Object parameterObject) {
+        DynamicContext context = new DynamicContext(configuration, parameterObject);
+        rootSqlNode.apply(context);
+        // 当出现where and id=1 的情况是，处理and的逻辑在这里？
+        SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
+        Class<?> parameterType = parameterObject == null ? Object.class : parameterObject.getClass();
+        SqlSource sqlSource = sqlSourceParser.parse(context.getSql(), parameterType, context.getBindings());
+        BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+        for (Map.Entry<String, Object> entry : context.getBindings().entrySet()) {
+            boundSql.setAdditionalParameter(entry.getKey(), entry.getValue());
+        }
+        return boundSql;
+    }
 
 }

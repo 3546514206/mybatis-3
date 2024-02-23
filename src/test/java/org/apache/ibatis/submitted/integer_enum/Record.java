@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,31 +17,31 @@ package org.apache.ibatis.submitted.integer_enum;
 
 public class Record {
 
-  private Integer field1;
-  private Integer field2;
-  private String field3;
+    private Integer field1;
+    private Integer field2;
+    private String field3;
 
-  public Integer getField1() {
-    return field1;
-  }
+    public Integer getField1() {
+        return field1;
+    }
 
-  public void setField1(Integer field1) {
-    this.field1 = field1;
-  }
+    public void setField1(Integer field1) {
+        this.field1 = field1;
+    }
 
-  public Integer getField2() {
-    return field2;
-  }
+    public Integer getField2() {
+        return field2;
+    }
 
-  public void setField2(Integer field2) {
-    this.field2 = field2;
-  }
+    public void setField2(Integer field2) {
+        this.field2 = field2;
+    }
 
-  public String getField3() {
-    return field3;
-  }
+    public String getField3() {
+        return field3;
+    }
 
-  public void setField3(String field3) {
-    this.field3 = field3;
-  }
+    public void setField3(String field3) {
+        this.field3 = field3;
+    }
 }

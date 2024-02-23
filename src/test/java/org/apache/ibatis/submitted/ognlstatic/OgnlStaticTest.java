@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,62 +16,70 @@
 package org.apache.ibatis.submitted.ognlstatic;
 
 import java.io.Reader;
+import java.sql.Connection;
 
-import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
-class OgnlStaticTest {
+public class OgnlStaticTest {
 
-  private static SqlSessionFactory sqlSessionFactory;
+    private static SqlSessionFactory sqlSessionFactory;
 
-  @BeforeAll
-  static void setUp() throws Exception {
-    // create a SqlSessionFactory
-    try (Reader reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/ognlstatic/mybatis-config.xml")) {
-      sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+    @BeforeClass
+    public static void setUp() throws Exception {
+        // create a SqlSessionFactory
+        Reader reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/ognlstatic/mybatis-config.xml");
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        reader.close();
+
+        // populate in-memory database
+        SqlSession session = sqlSessionFactory.openSession();
+        Connection conn = session.getConnection();
+        reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/ognlstatic/CreateDB.sql");
+        ScriptRunner runner = new ScriptRunner(conn);
+        runner.setLogWriter(null);
+        runner.runScript(reader);
+        reader.close();
+        session.close();
     }
 
-    // populate in-memory database
-    BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
-        "org/apache/ibatis/submitted/ognlstatic/CreateDB.sql");
-  }
-
-  /**
-   * This is the log output.
-   * <p>
-   * DEBUG [main] - ooo Using Connection [org.hsqldb.jdbc.JDBCConnection@5ae1a5c7]
-   * <p>
-   * DEBUG [main] - ==> Preparing: SELECT * FROM users WHERE name IN (?) AND id = ?
-   * <p>
-   * DEBUG [main] - ==> Parameters: 1(Integer), 1(Integer)
-   * <p>
-   * There are two parameter mappings but DefaultParameterHandler maps them both to input parameter (integer)
-   */
-  @Test // see issue #448
-  void shouldGetAUserStatic() {
-    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-      Mapper mapper = sqlSession.getMapper(Mapper.class);
-      User user = mapper.getUserStatic(1);
-      Assertions.assertNotNull(user);
-      Assertions.assertEquals("User1", user.getName());
+    /**
+     * This is the log output.
+     * DEBUG [main] - ooo Using Connection [org.hsqldb.jdbc.JDBCConnection@5ae1a5c7]
+     * DEBUG [main] - ==>  Preparing: SELECT * FROM users WHERE name IN (?) AND id = ?
+     * DEBUG [main] - ==> Parameters: 1(Integer), 1(Integer)
+     * There are two parameter mappings but DefaulParameterHandler maps them both to input paremeter (integer)
+     */
+    @Test // see issue #448
+    public void shouldGetAUserStatic() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            User user = mapper.getUserStatic(1);
+            Assert.assertNotNull(user);
+            Assert.assertEquals("User1", user.getName());
+        } finally {
+            sqlSession.close();
+        }
     }
-  }
 
-  @Tag("RequireIllegalAccess")
-  @Test // see issue #61 (gh)
-  void shouldGetAUserWithIfNode() {
-    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-      Mapper mapper = sqlSession.getMapper(Mapper.class);
-      User user = mapper.getUserIfNode("User1");
-      Assertions.assertEquals("User1", user.getName());
+    @Test // see issue #61 (gh)
+    public void shouldGetAUserWithIfNode() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            User user = mapper.getUserIfNode("User1");
+            Assert.assertEquals("User1", user.getName());
+        } finally {
+            sqlSession.close();
+        }
     }
-  }
 
 }

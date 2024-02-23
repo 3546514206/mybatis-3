@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,49 +19,49 @@ import java.util.List;
 
 public class Post {
 
-  private int id;
-  private String body;
-  private Blog blog;
-  private List<Comment> comments;
+    private int id;
+    private String body;
+    private Blog blog;
+    private List<Comment> comments;
 
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public Blog getBlog() {
-    return blog;
-  }
-
-  public void setBlog(Blog blog) {
-    if (this.blog != null) {
-      throw new RuntimeException("Setter called twice");
+    public int getId() {
+        return id;
     }
-    this.blog = blog;
-  }
 
-  public String getBody() {
-    return body;
-  }
-
-  public void setBody(String body) {
-    if (this.body != null) {
-      throw new RuntimeException("Setter called twice");
+    public void setId(int id) {
+        this.id = id;
     }
-    this.body = body;
-  }
 
-  public List<Comment> getComments() {
-    return comments;
-  }
-
-  public void setComments(List<Comment> comments) {
-    if (this.comments != null) {
-      throw new RuntimeException("Setter called twice");
+    public Blog getBlog() {
+        return blog;
     }
-    this.comments = comments;
-  }
+
+    public void setBlog(Blog blog) {
+        if (this.blog != null) {
+            throw new RuntimeException("Setter called twice");
+        }
+        this.blog = blog;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        if (this.body != null) {
+            throw new RuntimeException("Setter called twice");
+        }
+        this.body = body;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        if (this.comments != null) {
+            throw new RuntimeException("Setter called twice");
+        }
+        this.comments = comments;
+    }
 }

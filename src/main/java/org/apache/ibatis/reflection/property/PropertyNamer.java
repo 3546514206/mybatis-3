@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,39 +22,34 @@ import org.apache.ibatis.reflection.ReflectionException;
 /**
  * @author Clinton Begin
  */
-public final class PropertyNamer {
+public class PropertyNamer {
 
-  private PropertyNamer() {
-    // Prevent Instantiation of Static Class
-  }
+    public static String methodToProperty(String name) {
+        if (name.startsWith("is")) {
+            name = name.substring(2);
+        } else if (name.startsWith("get") || name.startsWith("set")) {
+            name = name.substring(3);
+        } else {
+            throw new ReflectionException("Error parsing property name '" + name + "'.  Didn't start with 'is', 'get' or 'set'.");
+        }
 
-  public static String methodToProperty(String name) {
-    if (name.startsWith("is")) {
-      name = name.substring(2);
-    } else if (name.startsWith("get") || name.startsWith("set")) {
-      name = name.substring(3);
-    } else {
-      throw new ReflectionException(
-          "Error parsing property name '" + name + "'.  Didn't start with 'is', 'get' or 'set'.");
+        if (name.length() == 1 || (name.length() > 1 && !Character.isUpperCase(name.charAt(1)))) {
+            name = name.substring(0, 1).toLowerCase(Locale.ENGLISH) + name.substring(1);
+        }
+
+        return name;
     }
 
-    if (name.length() == 1 || name.length() > 1 && !Character.isUpperCase(name.charAt(1))) {
-      name = name.substring(0, 1).toLowerCase(Locale.ENGLISH) + name.substring(1);
+    public static boolean isProperty(String name) {
+        return name.startsWith("get") || name.startsWith("set") || name.startsWith("is");
     }
 
-    return name;
-  }
+    public static boolean isGetter(String name) {
+        return name.startsWith("get") || name.startsWith("is");
+    }
 
-  public static boolean isProperty(String name) {
-    return isGetter(name) || isSetter(name);
-  }
-
-  public static boolean isGetter(String name) {
-    return name.startsWith("get") && name.length() > 3 || name.startsWith("is") && name.length() > 2;
-  }
-
-  public static boolean isSetter(String name) {
-    return name.startsWith("set") && name.length() > 3;
-  }
+    public static boolean isSetter(String name) {
+        return name.startsWith("set");
+    }
 
 }

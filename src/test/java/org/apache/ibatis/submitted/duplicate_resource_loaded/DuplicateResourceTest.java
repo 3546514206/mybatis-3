@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,36 +15,39 @@
  */
 package org.apache.ibatis.submitted.duplicate_resource_loaded;
 
-import java.io.Reader;
-import java.util.List;
-import java.util.Map;
-
+import org.junit.Assert;
 import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
-class DuplicateResourceTest extends BaseDataTest {
+import java.io.Reader;
+import java.util.List;
+import java.util.Map;
 
-  @BeforeEach
-  void setup() throws Exception {
-    BaseDataTest.createBlogDataSource();
-  }
+public class DuplicateResourceTest extends BaseDataTest {
 
-  @Test
-  void shouldDemonstrateDuplicateResourceIssue() throws Exception {
-    final String resource = "org/apache/ibatis/submitted/duplicate_resource_loaded/Config.xml";
-    final Reader reader = Resources.getResourceAsReader(resource);
-    final SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-    final SqlSessionFactory factory = builder.build(reader);
-    try (SqlSession sqlSession = factory.openSession()) {
-      final Mapper mapper = sqlSession.getMapper(Mapper.class);
-      final List<Map<String, Object>> list = mapper.selectAllBlogs();
-      Assertions.assertEquals(2, list.size());
+    @Before
+    public void setup() throws Exception {
+        BaseDataTest.createBlogDataSource();
     }
-  }
+
+    @Test
+    public void shouldDemonstrateDuplicateResourceIssue() throws Exception {
+        final String resource = "org/apache/ibatis/submitted/duplicate_resource_loaded/Config.xml";
+        final Reader reader = Resources.getResourceAsReader(resource);
+        final SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+        final SqlSessionFactory factory = builder.build(reader);
+        final SqlSession sqlSession = factory.openSession();
+        try {
+            final Mapper mapper = sqlSession.getMapper(Mapper.class);
+            final List<Map<String, Object>> list = mapper.selectAllBlogs();
+            Assert.assertEquals(2, list.size());
+        } finally {
+            sqlSession.close();
+        }
+    }
 }

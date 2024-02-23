@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,30 +26,30 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  */
 public interface ObjectWrapper {
 
-  Object get(PropertyTokenizer prop);
+    Object get(PropertyTokenizer prop);
 
-  void set(PropertyTokenizer prop, Object value);
+    void set(PropertyTokenizer prop, Object value);
 
-  String findProperty(String name, boolean useCamelCaseMapping);
+    String findProperty(String name, boolean useCamelCaseMapping);
 
-  String[] getGetterNames();
+    String[] getGetterNames();
 
-  String[] getSetterNames();
+    String[] getSetterNames();
 
-  Class<?> getSetterType(String name);
+    Class<?> getSetterType(String name);
 
-  Class<?> getGetterType(String name);
+    Class<?> getGetterType(String name);
 
-  boolean hasSetter(String name);
+    boolean hasSetter(String name);
 
-  boolean hasGetter(String name);
+    boolean hasGetter(String name);
 
-  MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory);
+    MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory);
 
-  boolean isCollection();
+    boolean isCollection();
 
-  void add(Object element);
+    public void add(Object element);
 
-  <E> void addAll(List<E> element);
+    public <E> void addAll(List<E> element);
 
 }

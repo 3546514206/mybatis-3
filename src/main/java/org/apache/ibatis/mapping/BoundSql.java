@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,66 +15,64 @@
  */
 package org.apache.ibatis.mapping;
 
+import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.session.Configuration;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.reflection.property.PropertyTokenizer;
-import org.apache.ibatis.session.Configuration;
+/**
+ * An actual SQL String got form an {@link SqlSource} after having processed any dynamic content.
+ * The SQL may have SQL placeholders "?" and an list (ordered) of an parameter mappings
+ * with the additional information for each parameter (at least the property name of the input object to read
+ * the value from).
+ * </br>
+ * Can also have additional parameters that are created by the dynamic language (for loops, bind...).
+ */
 
 /**
- * An actual SQL String got from an {@link SqlSource} after having processed any dynamic content. The SQL may have SQL
- * placeholders "?" and a list (ordered) of a parameter mappings with the additional information for each parameter (at
- * least the property name of the input object to read the value from).
- * <p>
- * Can also have additional parameters that are created by the dynamic language (for loops, bind...).
+ * 表示动态生成的SQL语句和封装的参数信息
  *
  * @author Clinton Begin
  */
 public class BoundSql {
 
-  private final String sql;
-  private final List<ParameterMapping> parameterMappings;
-  private final Object parameterObject;
-  private final Map<String, Object> additionalParameters;
-  private final MetaObject metaParameters;
+    private String sql;
+    private List<ParameterMapping> parameterMappings;
+    private Object parameterObject;
+    private Map<String, Object> additionalParameters;
+    private MetaObject metaParameters;
 
-  public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings,
-      Object parameterObject) {
-    this.sql = sql;
-    this.parameterMappings = parameterMappings;
-    this.parameterObject = parameterObject;
-    this.additionalParameters = new HashMap<>();
-    this.metaParameters = configuration.newMetaObject(additionalParameters);
-  }
+    public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {
+        this.sql = sql;
+        this.parameterMappings = parameterMappings;
+        this.parameterObject = parameterObject;
+        this.additionalParameters = new HashMap<String, Object>();
+        this.metaParameters = configuration.newMetaObject(additionalParameters);
+    }
 
-  public String getSql() {
-    return sql;
-  }
+    public String getSql() {
+        return sql;
+    }
 
-  public List<ParameterMapping> getParameterMappings() {
-    return parameterMappings;
-  }
+    public List<ParameterMapping> getParameterMappings() {
+        return parameterMappings;
+    }
 
-  public Object getParameterObject() {
-    return parameterObject;
-  }
+    public Object getParameterObject() {
+        return parameterObject;
+    }
 
-  public boolean hasAdditionalParameter(String name) {
-    String paramName = new PropertyTokenizer(name).getName();
-    return additionalParameters.containsKey(paramName);
-  }
+    public boolean hasAdditionalParameter(String name) {
+        return metaParameters.hasGetter(name);
+    }
 
-  public void setAdditionalParameter(String name, Object value) {
-    metaParameters.setValue(name, value);
-  }
+    public void setAdditionalParameter(String name, Object value) {
+        metaParameters.setValue(name, value);
+    }
 
-  public Object getAdditionalParameter(String name) {
-    return metaParameters.getValue(name);
-  }
-
-  public Map<String, Object> getAdditionalParameters() {
-    return additionalParameters;
-  }
+    public Object getAdditionalParameter(String name) {
+        return metaParameters.getValue(name);
+    }
 }

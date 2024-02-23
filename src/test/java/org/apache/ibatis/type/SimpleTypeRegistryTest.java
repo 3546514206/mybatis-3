@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,29 +15,30 @@
  */
 package org.apache.ibatis.type;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 
-import org.apache.ibatis.domain.misc.RichType;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-class SimpleTypeRegistryTest {
+import domain.misc.RichType;
 
-  @Test
-  void shouldTestIfClassIsSimpleTypeAndReturnTrue() {
-    assertTrue(SimpleTypeRegistry.isSimpleType(String.class));
-  }
+public class SimpleTypeRegistryTest {
 
-  @Test
-  void shouldTestIfClassIsSimpleTypeAndReturnFalse() {
-    assertFalse(SimpleTypeRegistry.isSimpleType(RichType.class));
-  }
+    @Test
+    public void shouldTestIfClassIsSimpleTypeAndReturnTrue() {
+        assertTrue(SimpleTypeRegistry.isSimpleType(String.class));
+    }
 
-  @Test
-  void shouldTestIfMapIsSimpleTypeAndReturnFalse() {
-    assertFalse(SimpleTypeRegistry.isSimpleType(HashMap.class)); // see issue #165, a Map is not a simple type
-  }
+    @Test
+    public void shouldTestIfClassIsSimpleTypeAndReturnFalse() {
+        assertFalse(SimpleTypeRegistry.isSimpleType(RichType.class));
+    }
+
+    @Test
+    public void shouldTestIfMapIsSimpleTypeAndReturnFalse() {
+        assertFalse(SimpleTypeRegistry.isSimpleType(HashMap.class)); // see issue #165, a Map is not a simple type
+    }
 
 }

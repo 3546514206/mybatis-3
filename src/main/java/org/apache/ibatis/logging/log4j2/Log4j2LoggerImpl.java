@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2013 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,47 +26,40 @@ import org.apache.logging.log4j.MarkerManager;
  */
 public class Log4j2LoggerImpl implements Log {
 
-  private static final Marker MARKER = MarkerManager.getMarker(LogFactory.MARKER);
+    private static Marker MARKER = MarkerManager.getMarker(LogFactory.MARKER);
 
-  private final Logger log;
+    private Logger log;
 
-  public Log4j2LoggerImpl(Logger logger) {
-    log = logger;
-  }
+    public Log4j2LoggerImpl(Logger logger) {
+        log = logger;
+    }
 
-  @Override
-  public boolean isDebugEnabled() {
-    return log.isDebugEnabled();
-  }
+    public boolean isDebugEnabled() {
+        return log.isDebugEnabled();
+    }
 
-  @Override
-  public boolean isTraceEnabled() {
-    return log.isTraceEnabled();
-  }
+    public boolean isTraceEnabled() {
+        return log.isTraceEnabled();
+    }
 
-  @Override
-  public void error(String s, Throwable e) {
-    log.error(MARKER, s, e);
-  }
+    public void error(String s, Throwable e) {
+        log.error(MARKER, s, e);
+    }
 
-  @Override
-  public void error(String s) {
-    log.error(MARKER, s);
-  }
+    public void error(String s) {
+        log.error(MARKER, s);
+    }
 
-  @Override
-  public void debug(String s) {
-    log.debug(MARKER, s);
-  }
+    public void debug(String s) {
+        log.debug(MARKER, s);
+    }
 
-  @Override
-  public void trace(String s) {
-    log.trace(MARKER, s);
-  }
+    public void trace(String s) {
+        log.trace(MARKER, s);
+    }
 
-  @Override
-  public void warn(String s) {
-    log.warn(MARKER, s);
-  }
+    public void warn(String s) {
+        log.warn(MARKER, s);
+    }
 
 }

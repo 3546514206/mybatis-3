@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,31 +17,31 @@ package org.apache.ibatis.submitted.initialized_collection_property;
 
 public class Post {
 
-  private int id;
-  private String content;
+    private int id;
+    private String content;
 
-  public Post() {
-  }
+    public Post() {
+    }
 
-  public Post(int id, String content) {
-    this.id = id;
-    this.content = content;
-  }
+    public Post(int id, String content) {
+        this.id = id;
+        this.content = content;
+    }
 
-  public int getId() {
-    return id;
-  }
+    public int getId() {
+        return id;
+    }
 
-  public void setId(int id) {
-    this.id = id;
-  }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-  public String getContent() {
-    return content;
-  }
+    public String getContent() {
+        return content;
+    }
 
-  public void setContent(String content) {
-    this.content = content;
-  }
+    public void setContent(String content) {
+        this.content = content;
+    }
 
 }

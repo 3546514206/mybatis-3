@@ -1,72 +1,65 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ * Copyright 2012 MyBatis.org.
  *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.scripting;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.ibatis.util.MapUtil;
-
 /**
  * @author Frank D. Martinez [mnesarco]
  */
 public class LanguageDriverRegistry {
 
-  private final Map<Class<? extends LanguageDriver>, LanguageDriver> LANGUAGE_DRIVER_MAP = new HashMap<>();
+    private final Map<Class<?>, LanguageDriver> LANGUAGE_DRIVER_MAP = new HashMap<Class<?>, LanguageDriver>();
 
-  private Class<? extends LanguageDriver> defaultDriverClass;
+    private Class<?> defaultDriverClass = null;
 
-  public void register(Class<? extends LanguageDriver> cls) {
-    if (cls == null) {
-      throw new IllegalArgumentException("null is not a valid Language Driver");
+    public void register(Class<?> cls) {
+        if (cls == null) {
+            throw new IllegalArgumentException("null is not a valid Language Driver");
+        }
+        if (!LanguageDriver.class.isAssignableFrom(cls)) {
+            throw new ScriptingException(cls.getName() + " does not implements " + LanguageDriver.class.getName());
+        }
+        LanguageDriver driver = LANGUAGE_DRIVER_MAP.get(cls);
+        if (driver == null) {
+            try {
+                driver = (LanguageDriver) cls.newInstance();
+                LANGUAGE_DRIVER_MAP.put(cls, driver);
+            } catch (Exception ex) {
+                throw new ScriptingException("Failed to load language driver for " + cls.getName(), ex);
+            }
+        }
     }
-    MapUtil.computeIfAbsent(LANGUAGE_DRIVER_MAP, cls, k -> {
-      try {
-        return k.getDeclaredConstructor().newInstance();
-      } catch (Exception ex) {
-        throw new ScriptingException("Failed to load language driver for " + cls.getName(), ex);
-      }
-    });
-  }
 
-  public void register(LanguageDriver instance) {
-    if (instance == null) {
-      throw new IllegalArgumentException("null is not a valid Language Driver");
+    public LanguageDriver getDriver(Class<?> cls) {
+        return LANGUAGE_DRIVER_MAP.get(cls);
     }
-    Class<? extends LanguageDriver> cls = instance.getClass();
-    if (!LANGUAGE_DRIVER_MAP.containsKey(cls)) {
-      LANGUAGE_DRIVER_MAP.put(cls, instance);
+
+    public LanguageDriver getDefaultDriver() {
+        return getDriver(getDefaultDriverClass());
     }
-  }
 
-  public LanguageDriver getDriver(Class<? extends LanguageDriver> cls) {
-    return LANGUAGE_DRIVER_MAP.get(cls);
-  }
+    public Class<?> getDefaultDriverClass() {
+        return defaultDriverClass;
+    }
 
-  public LanguageDriver getDefaultDriver() {
-    return getDriver(getDefaultDriverClass());
-  }
-
-  public Class<? extends LanguageDriver> getDefaultDriverClass() {
-    return defaultDriverClass;
-  }
-
-  public void setDefaultDriverClass(Class<? extends LanguageDriver> defaultDriverClass) {
-    register(defaultDriverClass);
-    this.defaultDriverClass = defaultDriverClass;
-  }
+    public void setDefaultDriverClass(Class<?> defaultDriverClass) {
+        register(defaultDriverClass);
+        this.defaultDriverClass = defaultDriverClass;
+    }
 
 }

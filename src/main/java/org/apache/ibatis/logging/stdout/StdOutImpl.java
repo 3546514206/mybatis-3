@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,43 +22,35 @@ import org.apache.ibatis.logging.Log;
  */
 public class StdOutImpl implements Log {
 
-  public StdOutImpl(String clazz) {
-    // Do Nothing
-  }
+    public StdOutImpl(String clazz) {
+    }
 
-  @Override
-  public boolean isDebugEnabled() {
-    return true;
-  }
+    public boolean isDebugEnabled() {
+        return true;
+    }
 
-  @Override
-  public boolean isTraceEnabled() {
-    return true;
-  }
+    public boolean isTraceEnabled() {
+        return true;
+    }
 
-  @Override
-  public void error(String s, Throwable e) {
-    System.err.println(s);
-    e.printStackTrace(System.err);
-  }
+    public void error(String s, Throwable e) {
+        System.err.println(s);
+        e.printStackTrace(System.err);
+    }
 
-  @Override
-  public void error(String s) {
-    System.err.println(s);
-  }
+    public void error(String s) {
+        System.err.println(s);
+    }
 
-  @Override
-  public void debug(String s) {
-    System.out.println(s);
-  }
+    public void debug(String s) {
+        System.out.println(s);
+    }
 
-  @Override
-  public void trace(String s) {
-    System.out.println(s);
-  }
+    public void trace(String s) {
+        System.out.println(s);
+    }
 
-  @Override
-  public void warn(String s) {
-    System.out.println(s);
-  }
+    public void warn(String s) {
+        System.out.println(s);
+    }
 }

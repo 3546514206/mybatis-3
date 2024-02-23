@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2014 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,71 +19,80 @@ import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
+import java.util.concurrent.locks.ReadWriteLock;
+
 /**
  * @author Clinton Begin
+ *
+ * 为缓存增加日志输出功能，记录缓存的请求次数和命中次数，通过日志输出缓存命中率
  */
 public class LoggingCache implements Cache {
 
-  private final Log log;
-  private final Cache delegate;
-  protected int requests;
-  protected int hits;
+    private Log log;
+    private Cache delegate;
+    protected int requests = 0;
+    protected int hits = 0;
 
-  public LoggingCache(Cache delegate) {
-    this.delegate = delegate;
-    this.log = LogFactory.getLog(getId());
-  }
-
-  @Override
-  public String getId() {
-    return delegate.getId();
-  }
-
-  @Override
-  public int getSize() {
-    return delegate.getSize();
-  }
-
-  @Override
-  public void putObject(Object key, Object object) {
-    delegate.putObject(key, object);
-  }
-
-  @Override
-  public Object getObject(Object key) {
-    requests++;
-    final Object value = delegate.getObject(key);
-    if (value != null) {
-      hits++;
+    public LoggingCache(Cache delegate) {
+        this.delegate = delegate;
+        this.log = LogFactory.getLog(getId());
     }
-    if (log.isDebugEnabled()) {
-      log.debug("Cache Hit Ratio [" + getId() + "]: " + getHitRatio());
+
+    @Override
+    public String getId() {
+        return delegate.getId();
     }
-    return value;
-  }
 
-  @Override
-  public Object removeObject(Object key) {
-    return delegate.removeObject(key);
-  }
+    @Override
+    public int getSize() {
+        return delegate.getSize();
+    }
 
-  @Override
-  public void clear() {
-    delegate.clear();
-  }
+    @Override
+    public void putObject(Object key, Object object) {
+        delegate.putObject(key, object);
+    }
 
-  @Override
-  public int hashCode() {
-    return delegate.hashCode();
-  }
+    @Override
+    public Object getObject(Object key) {
+        requests++;
+        final Object value = delegate.getObject(key);
+        if (value != null) {
+            hits++;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Cache Hit Ratio [" + getId() + "]: " + getHitRatio());
+        }
+        return value;
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    return delegate.equals(obj);
-  }
+    @Override
+    public Object removeObject(Object key) {
+        return delegate.removeObject(key);
+    }
 
-  private double getHitRatio() {
-    return (double) hits / (double) requests;
-  }
+    @Override
+    public void clear() {
+        delegate.clear();
+    }
+
+    @Override
+    public ReadWriteLock getReadWriteLock() {
+        return null;
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return delegate.equals(obj);
+    }
+
+    private double getHitRatio() {
+        return (double) hits / (double) requests;
+    }
 
 }

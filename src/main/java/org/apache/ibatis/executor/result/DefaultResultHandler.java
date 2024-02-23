@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,26 +25,26 @@ import org.apache.ibatis.session.ResultHandler;
 /**
  * @author Clinton Begin
  */
-public class DefaultResultHandler implements ResultHandler<Object> {
+public class DefaultResultHandler implements ResultHandler {
 
-  private final List<Object> list;
+    private final List<Object> list;
 
-  public DefaultResultHandler() {
-    list = new ArrayList<>();
-  }
+    public DefaultResultHandler() {
+        list = new ArrayList<Object>();
+    }
 
-  @SuppressWarnings("unchecked")
-  public DefaultResultHandler(ObjectFactory objectFactory) {
-    list = objectFactory.create(List.class);
-  }
+    @SuppressWarnings("unchecked")
+    public DefaultResultHandler(ObjectFactory objectFactory) {
+        list = objectFactory.create(List.class);
+    }
 
-  @Override
-  public void handleResult(ResultContext<?> context) {
-    list.add(context.getResultObject());
-  }
+    @Override
+    public void handleResult(ResultContext context) {
+        list.add(context.getResultObject());
+    }
 
-  public List<Object> getResultList() {
-    return list;
-  }
+    public List<Object> getResultList() {
+        return list;
+    }
 
 }

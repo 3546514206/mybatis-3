@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,95 +16,53 @@
 package org.apache.ibatis.submitted.multiple_resultsets;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.List;
 
-import org.apache.ibatis.BaseDataTest;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.testcontainers.PgContainer;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /*
  * This class contains tests for multiple results.
  * It is based on Jeff's ref cursor tests.
+ *
+ * The tests require a
+ * local install of PostgreSQL and cannot be run as a part of the normal
+ * MyBatis build unless PostreSQL is setup on the build machine as
+ * described in setupdb.txt
+ *
+ * If PostgreSQL is setup as described in setupdb.txt, then remove
+ * the @Ignore annotation to enable the tests.
+ *
  */
-@Tag("TestcontainersTests")
-class MultipleResultTest {
+@Ignore("See setupdb.txt for instructions on how to run the tests in this class")
+public class MultipleResultTest {
 
-  private static SqlSessionFactory sqlSessionFactory;
+    private static SqlSessionFactory sqlSessionFactory;
 
-  @BeforeAll
-  static void setUp() throws Exception {
-    Configuration configuration = new Configuration();
-    Environment environment = new Environment("development", new JdbcTransactionFactory(),
-        PgContainer.getUnpooledDataSource());
-    configuration.setEnvironment(environment);
-    configuration.setMapUnderscoreToCamelCase(true);
-    configuration.addMapper(Mapper.class);
-    sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-
-    BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
-        "org/apache/ibatis/submitted/multiple_resultsets/CreateDB.sql");
-  }
-
-  @Test
-  void shouldGetMultipleResultSetsWithOneStatement() throws IOException {
-    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-      Mapper mapper = sqlSession.getMapper(Mapper.class);
-      List<List<?>> results = mapper.getUsersAndGroups();
-      Assertions.assertEquals(2, results.size());
-
-      Assertions.assertEquals(6, results.get(0).size());
-      OrderDetail detail = (OrderDetail) results.get(0).get(0);
-      Assertions.assertEquals(1, detail.getOrderId());
-      Assertions.assertEquals(1, detail.getLineNumber());
-      Assertions.assertEquals(1, detail.getQuantity());
-      Assertions.assertEquals("Pen", detail.getItemDescription());
-
-      Assertions.assertEquals(2, results.get(1).size());
-      OrderHeader header = (OrderHeader) results.get(1).get(0);
-      Assertions.assertEquals(1, header.getOrderId());
-      Assertions.assertEquals("Fred", header.getCustName());
+    @BeforeClass
+    public static void setUp() throws Exception {
+        Reader reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/multiple_resultsets/mybatis-config.xml");
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        reader.close();
     }
-  }
 
-  @Test
-  void shouldSkipNullResultSet() {
-    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-      try {
-        Mapper mapper = sqlSession.getMapper(Mapper.class);
-        List<List<?>> results = mapper.multiResultsWithUpdate();
-        Assertions.assertEquals(2, results.size());
-
-        Assertions.assertEquals(6, results.get(0).size());
-        OrderDetail detail = (OrderDetail) results.get(0).get(0);
-        Assertions.assertEquals(1, detail.getOrderId());
-        Assertions.assertEquals(1, detail.getLineNumber());
-        Assertions.assertEquals(1, detail.getQuantity());
-        Assertions.assertEquals("Pen", detail.getItemDescription());
-
-        Assertions.assertEquals(2, results.get(1).size());
-        OrderHeader header = (OrderHeader) results.get(1).get(0);
-        Assertions.assertEquals(1, header.getOrderId());
-        Assertions.assertEquals("Fred", header.getCustName());
-
-        results = mapper.getUsersAndGroups();
-        Assertions.assertEquals(7, results.get(0).size());
-        detail = (OrderDetail) results.get(0).get(6);
-        Assertions.assertEquals(2, detail.getOrderId());
-        Assertions.assertEquals(4, detail.getLineNumber());
-        Assertions.assertEquals(5, detail.getQuantity());
-        Assertions.assertEquals("Eraser", detail.getItemDescription());
-      } finally {
-        sqlSession.rollback(true);
-      }
+    @Test
+    public void shouldGetMultipleResultSetsWithOneStatement() throws IOException {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            List<?> usersAndGroups = mapper.getUsersAndGroups();
+            Assert.assertEquals(2, usersAndGroups.size());
+        } finally {
+            sqlSession.close();
+        }
     }
-  }
+
 }

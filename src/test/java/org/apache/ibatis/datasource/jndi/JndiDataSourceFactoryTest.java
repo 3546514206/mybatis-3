@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,91 +15,88 @@
  */
 package org.apache.ibatis.datasource.jndi;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.apache.ibatis.BaseDataTest;
+import org.apache.ibatis.datasource.DataSourceException;
+import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Properties;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Properties;
 
-import org.apache.ibatis.BaseDataTest;
-import org.apache.ibatis.datasource.DataSourceException;
-import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+public class JndiDataSourceFactoryTest extends BaseDataTest {
 
-class JndiDataSourceFactoryTest extends BaseDataTest {
+    private static final String TEST_INITIAL_CONTEXT_FACTORY = MockContextFactory.class.getName();
+    private static final String TEST_INITIAL_CONTEXT = "/mypath/path/";
+    private static final String TEST_DATA_SOURCE = "myDataSource";
+    private UnpooledDataSource expectedDataSource;
 
-  private static final String TEST_INITIAL_CONTEXT_FACTORY = MockContextFactory.class.getName();
-  private static final String TEST_INITIAL_CONTEXT = "/mypath/path/";
-  private static final String TEST_DATA_SOURCE = "myDataSource";
-  private UnpooledDataSource expectedDataSource;
-
-  @BeforeEach
-  void setup() throws Exception {
-    expectedDataSource = createUnpooledDataSource(BLOG_PROPERTIES);
-  }
-
-  @Test
-  void shouldRetrieveDataSourceFromJNDI() {
-    createJndiDataSource();
-    JndiDataSourceFactory factory = new JndiDataSourceFactory();
-    factory.setProperties(new Properties() {
-      private static final long serialVersionUID = 1L;
-      {
-        setProperty(JndiDataSourceFactory.ENV_PREFIX + Context.INITIAL_CONTEXT_FACTORY, TEST_INITIAL_CONTEXT_FACTORY);
-        setProperty(JndiDataSourceFactory.INITIAL_CONTEXT, TEST_INITIAL_CONTEXT);
-        setProperty(JndiDataSourceFactory.DATA_SOURCE, TEST_DATA_SOURCE);
-      }
-    });
-    DataSource actualDataSource = factory.getDataSource();
-    assertEquals(expectedDataSource, actualDataSource);
-  }
-
-  private void createJndiDataSource() {
-    try {
-      Properties env = new Properties();
-      env.put(Context.INITIAL_CONTEXT_FACTORY, TEST_INITIAL_CONTEXT_FACTORY);
-
-      MockContext ctx = new MockContext(false);
-      ctx.bind(TEST_DATA_SOURCE, expectedDataSource);
-
-      InitialContext initCtx = new InitialContext(env);
-      initCtx.bind(TEST_INITIAL_CONTEXT, ctx);
-    } catch (NamingException e) {
-      throw new DataSourceException("There was an error configuring JndiDataSourceTransactionPool. Cause: " + e, e);
-    }
-  }
-
-  public static class MockContextFactory implements InitialContextFactory {
-    @Override
-    public Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
-      return new MockContext(false);
-    }
-  }
-
-  public static class MockContext extends InitialContext {
-    private static final Map<String, Object> bindings = new HashMap<>();
-
-    MockContext(boolean lazy) throws NamingException {
-      super(lazy);
+    @Before
+    public void setup() throws Exception {
+        expectedDataSource = createUnpooledDataSource(BLOG_PROPERTIES);
     }
 
-    @Override
-    public Object lookup(String name) {
-      return bindings.get(name);
+    @Test
+    public void shouldRetrieveDataSourceFromJNDI() throws Exception {
+        createJndiDataSource();
+        JndiDataSourceFactory factory = new JndiDataSourceFactory();
+        factory.setProperties(new Properties() {
+            {
+                setProperty(JndiDataSourceFactory.ENV_PREFIX + Context.INITIAL_CONTEXT_FACTORY, TEST_INITIAL_CONTEXT_FACTORY);
+                setProperty(JndiDataSourceFactory.INITIAL_CONTEXT, TEST_INITIAL_CONTEXT);
+                setProperty(JndiDataSourceFactory.DATA_SOURCE, TEST_DATA_SOURCE);
+            }
+        });
+        DataSource actualDataSource = factory.getDataSource();
+        assertEquals(expectedDataSource, actualDataSource);
     }
 
-    @Override
-    public void bind(String name, Object obj) {
-      bindings.put(name, obj);
+    private void createJndiDataSource() throws Exception {
+        try {
+            Hashtable<String, String> env = new Hashtable<String, String>();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, TEST_INITIAL_CONTEXT_FACTORY);
+
+            MockContext ctx = new MockContext(false);
+            ctx.bind(TEST_DATA_SOURCE, expectedDataSource);
+
+            InitialContext initCtx = new InitialContext(env);
+            initCtx.bind(TEST_INITIAL_CONTEXT, ctx);
+        } catch (NamingException e) {
+            throw new DataSourceException("There was an error configuring JndiDataSourceTransactionPool. Cause: " + e, e);
+        }
     }
-  }
+
+    public static class MockContextFactory implements InitialContextFactory {
+        public Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
+            return new MockContext(false);
+        }
+    }
+
+    public static class MockContext extends InitialContext {
+        private static Map<String, Object> bindings = new HashMap<String, Object>();
+
+        public MockContext(boolean lazy) throws NamingException {
+            super(lazy);
+        }
+
+        public Object lookup(String name) throws NamingException {
+            return bindings.get(name);
+        }
+
+        public void bind(String name, Object obj) throws NamingException {
+            bindings.put(name, obj);
+        }
+    }
+
 
 }

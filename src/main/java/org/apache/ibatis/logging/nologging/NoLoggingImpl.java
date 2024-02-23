@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,43 +22,30 @@ import org.apache.ibatis.logging.Log;
  */
 public class NoLoggingImpl implements Log {
 
-  public NoLoggingImpl(String clazz) {
-    // Do Nothing
-  }
+    public NoLoggingImpl(String clazz) {
+    }
 
-  @Override
-  public boolean isDebugEnabled() {
-    return false;
-  }
+    public boolean isDebugEnabled() {
+        return false;
+    }
 
-  @Override
-  public boolean isTraceEnabled() {
-    return false;
-  }
+    public boolean isTraceEnabled() {
+        return false;
+    }
 
-  @Override
-  public void error(String s, Throwable e) {
-    // Do Nothing
-  }
+    public void error(String s, Throwable e) {
+    }
 
-  @Override
-  public void error(String s) {
-    // Do Nothing
-  }
+    public void error(String s) {
+    }
 
-  @Override
-  public void debug(String s) {
-    // Do Nothing
-  }
+    public void debug(String s) {
+    }
 
-  @Override
-  public void trace(String s) {
-    // Do Nothing
-  }
+    public void trace(String s) {
+    }
 
-  @Override
-  public void warn(String s) {
-    // Do Nothing
-  }
+    public void warn(String s) {
+    }
 
 }

@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2023 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,21 +19,21 @@ import java.io.Serializable;
 
 public class Bar implements Serializable {
 
-  private static final long serialVersionUID = 1L;
-  private Long field1;
+    private Long field1;
 
-  public Bar() {
-  }
+    public Bar() {
+        super();
+    }
 
-  public Bar(long field1) {
-    this.field1 = field1;
-  }
+    public Bar(long field1) {
+        this.field1 = field1;
+    }
 
-  public Long getField1() {
-    return field1;
-  }
+    public Long getField1() {
+        return field1;
+    }
 
-  public void setField1(Long field1) {
-    this.field1 = field1;
-  }
+    public void setField1(Long field1) {
+        this.field1 = field1;
+    }
 }

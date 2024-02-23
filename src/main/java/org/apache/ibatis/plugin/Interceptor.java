@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,14 +22,10 @@ import java.util.Properties;
  */
 public interface Interceptor {
 
-  Object intercept(Invocation invocation) throws Throwable;
+    Object intercept(Invocation invocation) throws Throwable;
 
-  default Object plugin(Object target) {
-    return Plugin.wrap(target, this);
-  }
+    Object plugin(Object target);
 
-  default void setProperties(Properties properties) {
-    // NOP
-  }
+    void setProperties(Properties properties);
 
 }

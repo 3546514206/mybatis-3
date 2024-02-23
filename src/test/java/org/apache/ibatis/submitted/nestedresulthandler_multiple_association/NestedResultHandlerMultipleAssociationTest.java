@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2014 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,68 +16,77 @@
 package org.apache.ibatis.submitted.nestedresulthandler_multiple_association;
 
 import java.io.Reader;
+import java.sql.Connection;
 import java.util.List;
 
-import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-class NestedResultHandlerMultipleAssociationTest {
+public class NestedResultHandlerMultipleAssociationTest {
 
-  private static SqlSessionFactory sqlSessionFactory;
+    private static SqlSessionFactory sqlSessionFactory;
 
-  @BeforeAll
-  static void setUp() throws Exception {
-    // create an SqlSessionFactory
-    try (Reader reader = Resources.getResourceAsReader(
-        "org/apache/ibatis/submitted/nestedresulthandler_multiple_association/mybatis-config.xml")) {
-      sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+    @BeforeClass
+    public static void setUp() throws Exception {
+        // create an SqlSessionFactory
+        Reader reader = Resources
+                .getResourceAsReader("org/apache/ibatis/submitted/nestedresulthandler_multiple_association/mybatis-config.xml");
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        reader.close();
+
+        // populate in-memory database
+        SqlSession session = sqlSessionFactory.openSession();
+        Connection conn = session.getConnection();
+        reader = Resources
+                .getResourceAsReader("org/apache/ibatis/submitted/nestedresulthandler_multiple_association/CreateDB.sql");
+        ScriptRunner runner = new ScriptRunner(conn);
+        runner.setLogWriter(null);
+        runner.runScript(reader);
+        reader.close();
+        session.close();
     }
 
-    // populate in-memory database
-    BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
-        "org/apache/ibatis/submitted/nestedresulthandler_multiple_association/CreateDB.sql");
-  }
+    @Test
+    public void failure() throws Exception {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
 
-  @Test
-  void failure() {
-    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-
-      // Parents have child going from somewhere to somewhere, they are stored in
-      // a Binome object
-      // In this test we have 2 parents:
-      // Parent1 is going from Child1 to Child2
-      // Parent2 is going from Child2 to Child3 and from Child1 to Child2
-      // You'll see a NULL entry in the list instead of the Binome Child1/Child2
-      List<ParentBean> list = sqlSession.selectList("selectParentBeans");
-      for (ParentBean pb : list) {
-        for (Binome<ChildBean, ChildBean> childs : pb.getChilds()) {
-          Assertions.assertNotNull(childs);
-          Assertions.assertNotNull(childs.getOne());
-          Assertions.assertNotNull(childs.getTwo());
+        // Parents have child going from somewhere to somewhere, they are stored in
+        // a Binome object
+        // In this test we have 2 parents:
+        // Parent1 is going from Child1 to Child2
+        // Parent2 is going from Child2 to Child3 and from Child1 to Child2
+        // You'll see a NULL entry in the list instead of the Binome Child1/Child2
+        List<ParentBean> list = sqlSession.selectList("selectParentBeans");
+        for (ParentBean pb : list) {
+            for (Binome<ChildBean, ChildBean> childs : pb.getChilds()) {
+                Assert.assertNotNull(childs);
+                Assert.assertNotNull(childs.getOne());
+                Assert.assertNotNull(childs.getTwo());
+            }
         }
-      }
+
+        sqlSession.close();
     }
-  }
 
-  @Test
-  void success() {
-    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+    @Test
+    public void success() throws Exception {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
 
-      ParentBean parent = sqlSession.selectOne("selectParentBeanById", 2);
+        ParentBean parent = sqlSession.selectOne("selectParentBeanById", 2);
 
-      // If you only select the Parent2 it works
-      for (Binome<ChildBean, ChildBean> childs : parent.getChilds()) {
-        Assertions.assertNotNull(childs);
-        Assertions.assertNotNull(childs.getOne());
-        Assertions.assertNotNull(childs.getTwo());
-      }
+        // If you only select the Parent2 it works
+        for (Binome<ChildBean, ChildBean> childs : parent.getChilds()) {
+            Assert.assertNotNull(childs);
+            Assert.assertNotNull(childs.getOne());
+            Assert.assertNotNull(childs.getTwo());
+        }
+        sqlSession.close();
     }
-  }
 
 }

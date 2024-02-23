@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,25 +21,24 @@ import java.util.List;
  * @author Clinton Begin
  */
 public class ChooseSqlNode implements SqlNode {
-  private final SqlNode defaultSqlNode;
-  private final List<SqlNode> ifSqlNodes;
+    private SqlNode defaultSqlNode;
+    private List<SqlNode> ifSqlNodes;
 
-  public ChooseSqlNode(List<SqlNode> ifSqlNodes, SqlNode defaultSqlNode) {
-    this.ifSqlNodes = ifSqlNodes;
-    this.defaultSqlNode = defaultSqlNode;
-  }
+    public ChooseSqlNode(List<SqlNode> ifSqlNodes, SqlNode defaultSqlNode) {
+        this.ifSqlNodes = ifSqlNodes;
+        this.defaultSqlNode = defaultSqlNode;
+    }
 
-  @Override
-  public boolean apply(DynamicContext context) {
-    for (SqlNode sqlNode : ifSqlNodes) {
-      if (sqlNode.apply(context)) {
-        return true;
-      }
+    public boolean apply(DynamicContext context) {
+        for (SqlNode sqlNode : ifSqlNodes) {
+            if (sqlNode.apply(context)) {
+                return true;
+            }
+        }
+        if (defaultSqlNode != null) {
+            defaultSqlNode.apply(context);
+            return true;
+        }
+        return false;
     }
-    if (defaultSqlNode != null) {
-      defaultSqlNode.apply(context);
-      return true;
-    }
-    return false;
-  }
 }

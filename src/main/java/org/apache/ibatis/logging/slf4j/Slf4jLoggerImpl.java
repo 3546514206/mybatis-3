@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2012 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,45 +23,38 @@ import org.slf4j.Logger;
  */
 class Slf4jLoggerImpl implements Log {
 
-  private final Logger log;
+    private Logger log;
 
-  public Slf4jLoggerImpl(Logger logger) {
-    log = logger;
-  }
+    public Slf4jLoggerImpl(Logger logger) {
+        log = logger;
+    }
 
-  @Override
-  public boolean isDebugEnabled() {
-    return log.isDebugEnabled();
-  }
+    public boolean isDebugEnabled() {
+        return log.isDebugEnabled();
+    }
 
-  @Override
-  public boolean isTraceEnabled() {
-    return log.isTraceEnabled();
-  }
+    public boolean isTraceEnabled() {
+        return log.isTraceEnabled();
+    }
 
-  @Override
-  public void error(String s, Throwable e) {
-    log.error(s, e);
-  }
+    public void error(String s, Throwable e) {
+        log.error(s, e);
+    }
 
-  @Override
-  public void error(String s) {
-    log.error(s);
-  }
+    public void error(String s) {
+        log.error(s);
+    }
 
-  @Override
-  public void debug(String s) {
-    log.debug(s);
-  }
+    public void debug(String s) {
+        log.debug(s);
+    }
 
-  @Override
-  public void trace(String s) {
-    log.trace(s);
-  }
+    public void trace(String s) {
+        log.trace(s);
+    }
 
-  @Override
-  public void warn(String s) {
-    log.warn(s);
-  }
+    public void warn(String s) {
+        log.warn(s);
+    }
 
 }

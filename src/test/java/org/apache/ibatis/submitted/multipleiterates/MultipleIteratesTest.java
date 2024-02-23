@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2022 the original author or authors.
+ *    Copyright 2009-2013 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       https://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,43 +16,52 @@
 package org.apache.ibatis.submitted.multipleiterates;
 
 import java.io.Reader;
+import java.sql.Connection;
 
-import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-class MultipleIteratesTest {
+public class MultipleIteratesTest {
 
-  private static SqlSessionFactory sqlSessionFactory;
+    private static SqlSessionFactory sqlSessionFactory;
 
-  @BeforeAll
-  static void setUp() throws Exception {
-    // create a SqlSessionFactory
-    try (Reader reader = Resources
-        .getResourceAsReader("org/apache/ibatis/submitted/multipleiterates/mybatis-config.xml")) {
-      sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+    @BeforeClass
+    public static void setUp() throws Exception {
+        // create a SqlSessionFactory
+        Reader reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/multipleiterates/mybatis-config.xml");
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
+        reader.close();
+
+        // populate in-memory database
+        SqlSession session = sqlSessionFactory.openSession();
+        Connection conn = session.getConnection();
+        reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/multipleiterates/CreateDB.sql");
+        ScriptRunner runner = new ScriptRunner(conn);
+        runner.setLogWriter(null);
+        runner.runScript(reader);
+        reader.close();
+        session.close();
     }
 
-    // populate in-memory database
-    BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
-        "org/apache/ibatis/submitted/multipleiterates/CreateDB.sql");
-  }
-
-  @Test
-  void shouldGetAUser() {
-    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-      Mapper mapper = sqlSession.getMapper(Mapper.class);
-      User user = new User();
-      user.setId(1);
-      user.setName("Justin");
-      user.setFirstAttr(new String[] { "asd", "asd" });
-      user.setSecondAttr(new String[] { "fds", "fds" });
-      mapper.insertUser(user);
+    @Test
+    public void shouldGetAUser() {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        try {
+            Mapper mapper = sqlSession.getMapper(Mapper.class);
+            User user = new User();
+            user.setId(1);
+            user.setName("Justin");
+            user.setFirstAttr(new String[]{"asd", "asd"});
+            user.setSecondAttr(new String[]{"fds", "fds"});
+            mapper.insertUser(user);
+        } finally {
+            sqlSession.close();
+        }
     }
-  }
 
 }
